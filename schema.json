@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/in-toto/specification/blob/v2.0/schema.json",
+  "title": "The in-toto/specification v2.0 Policy",
+  "description": "A JSON Schema for in-toto policies as defined by in-toto/specification v2.0",
+  "type": "object",
+  "properties": {
+    "expires": {
+      "description": "After which date and time exactly this policy expires",
+      "type": "string",
+      "format": "date-time"
+    },
+    "functionaries": {
+      "description": "The public keys used to verify attestations produced by functionaries in each step",
+      "type": "object",
+      "patternProperties": {
+        "^*$": {
+          "type": "object",
+          "properties": {
+            "keytype": {
+              "type": "string",
+              "enum": [ "rsa", "ed25519", "ecdsa" ]
+            },
+            "scheme": {
+              "type": "string",
+              "enum": [ "rsassa-pss-sha256", "ed25519", "ecdsa-sha2-nistp256" ]
+            },
+            "keyval": {
+              "type": "object",
+              "properties": {
+                "public": {
+                  "type": "string"
+                }
+              },
+              "required": [ "public" ]
+            }
+          },
+          "required": [ "keytype", "scheme", "keyval" ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "keytype": { "const": "rsa" }
+                }
+              },
+              "then": {
+                "properties": {
+                  "scheme": { "const": "rsassa-pss-sha256" }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "keytype": { "const": "ed25519" }
+                }
+              },
+              "then": {
+                "properties": {
+                  "scheme": { "const": "ed25519" }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "keytype": { "const": "ecdsa" }
+                }
+              },
+              "then": {
+                "properties": {
+                  "scheme": { "const": "ecdsa-sha2-nistp256" }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "steps": {
+      "description": "The steps that form the Directed Acyclic Graph (DAG) of this software supply chain",
+      "type": "array"
+    }
+  },
+  "required": [ "expires", "functionaries" ]
+}
