@@ -79,8 +79,43 @@
     },
     "steps": {
       "description": "The steps that form the Directed Acyclic Graph (DAG) of this software supply chain",
-      "type": "array"
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "The name of the step",
+            "type": "string"
+          },
+          "expected_materials": {
+            "description": "The materials/inputs into this step",
+            "$ref": "#/$defs/artifact_rules"
+          },
+          "expected_products": {
+            "description": "The products/outputs from this step",
+            "$ref": "#/$defs/artifact_rules"
+          }
+        },
+        "required": [ "name" ]
+      }
     }
   },
-  "required": [ "expires", "functionaries" ]
+  "required": [ "expires", "functionaries" ],
+  "$defs": {
+    "artifact_rules": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "oneOf": [
+          { "pattern": "^ALLOW [\\S\\w]+$" },
+          { "pattern": "^CREATE [\\S\\w]+$" },
+          { "pattern": "^DELETE [\\S\\w]+$" },
+          { "pattern": "^DISALLOW [\\S\\w]+$" },
+          { "pattern": "^MATCH [\\S\\w]+ (IN [\\S\\w]+ )?WITH (MATERIALS|PRODUCTS) (IN [\\S\\w]+ )?FROM [\\S\\w]+$"},
+          { "pattern": "^MODIFY [\\S\\w]+$" },
+          { "pattern": "^REQUIRE [\\S\\w]+$" }
+        ]
+      }
+    }
+  }
 }
